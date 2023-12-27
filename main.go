@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -14,14 +16,15 @@ type Column struct {
 
 func main() {
 	// open the file
-	file, err := os.Open("data.csv")
+	filename := "output.json"
+	file, err := os.Open(filename)
 	defer file.Close()
 
 	if err != nil {
 		panic(err)
 	}
 
-	file_ext := path.Ext("data.csv")
+	file_ext := path.Ext(filename)
 	if file_ext == "" {
 		panic("filetype not detected: Please specify .json or .csv in the filename")
 	}
@@ -39,6 +42,19 @@ func main() {
 }
 func toCSV(file *os.File) {
 	// d := 1
+	byteResult, _ := io.ReadAll(file)
+
+	var data interface{}
+	err := json.Unmarshal(byteResult, &data)
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Println(data)
+	arr := data.(map[string]interface{})
+	for _, col := range arr {
+		fmt.Println(col)
+	}
+
 }
 
 func toJSON(file *os.File) {
